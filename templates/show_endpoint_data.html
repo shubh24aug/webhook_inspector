@@ -6,15 +6,14 @@
 
 {% block body %}
 
-    <div class="container" style="margin-top: 15pt;">
-        <p style="font-size: 80%;">
-            http://something.com/{{ data_posted.reference_endpoint }}
-            <br>
-            <button class="btn btn-sm btn-outline-primary" style="position: inline;">Copy</button>
-        </p>
-    </div>
-
     {% if call_from == 'save_data' %}
+        <div class="container" style="margin-top: 15pt;">
+            <p style="font-size: 80%;">
+                http://something.com/{{ data_posted.reference_endpoint }}
+                <br>
+                <button class="btn btn-sm btn-outline-primary" style="position: inline;">Copy</button>
+            </p>
+        </div>
         <div class="container" style="margin-top: 10pt;">
             <div class="card" style="margin-top: 5pt; margin-bottom: 5pt;">
                 <div class="card-header" id="heading{{data_posted.webhook_data_id}}">
@@ -85,26 +84,92 @@
                             {{ data_posted.query_params_data }}
                         {% endif %}
                     </span>
-                    <hr>
                 </div>
             </div>
         </div>
     {% else %}
+        <div class="container" style="margin-top: 15pt;">
+            <p style="font-size: 80%;">
+                http://something.com/{{ reference_endpoint }}
+                <br>
+                <button class="btn btn-sm btn-outline-primary" style="position: inline;">Copy</button>
+            </p>
+        </div>
         <div class="container" style="margin-top: 10pt;">
             {% for item in data_posted %}
-                <div class="card" style="margin-top: 5pt; margin-bottom: 5pt;">
-                    <div class="card-header" id="heading{{item.webhook_data_id}}">
-                        <h5 class="mb-0">
-                            Data Posted On : {{item.hit_at}}
-                        </h5>
-                    </div>
-
-                    <div id="{{item.webhook_data_id}}" class="collapse show" aria-labelledby="heading{{item.webhook_data_id}}" data-parent="#datadumped">
-                        <div class="card-body">
-                        {{ item.header_data }}
+                
+                    <div class="container" style="margin-top: 10pt;">
+                        <div class="card" style="margin-top: 5pt; margin-bottom: 5pt;">
+                            <div class="card-header" id="heading{{data_posted.webhook_data_id}}">
+                                <h5>
+                                    Data Posted On : {{item.hit_at}}
+                                </h5>
+                            </div>
+            
+                            <div class="card-body">
+                                <span>
+                                    <h6>
+                                        Headers
+                                    </h6>
+                                    {% for iter in item.header_data[1:-1].split(",") %}
+                                        {{iter}} <br>
+                                    {% endfor %}
+                                </span>
+                                <hr>
+                                <span>
+                                    <h6>
+                                        Form Data
+                                    </h6>
+                                    {% if item.form_data[0] != 'N' %}
+                                        {% for iter in item.form_data[1:-1].split(",") %}
+                                            {{iter}} <br>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ item.form_data }}
+                                    {% endif %}
+                                </span>
+                                <hr>
+                                <span>
+                                    <h6>
+                                        Raw Data
+                                    </h6>
+                                    {% if item.raw_data[0] != 'N' %}
+                                        {% for iter in item.raw_data[1:-1].split(",") %}
+                                            {{iter}} <br>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ item.raw_data }}
+                                    {% endif %}
+                                </span>
+                                <hr>
+                                <span>
+                                    <h6>
+                                        Files
+                                    </h6>
+                                    {% if item.files_data[0] != 'N' %}
+                                        {% for iter in item.files_data[1:-1].split(",") %}
+                                            {{iter}} <br>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ item.files_data }}
+                                    {% endif %}
+                                </span>
+                                <hr>
+                                <span>
+                                    <h6>
+                                        Query Params
+                                    </h6>
+                                    {% if item.query_params_data[0] != 'N' %}
+                                        {% for iter in item.query_params_data[1:-1].split(",") %}
+                                            {{iter}} <br>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ item.query_params_data }}
+                                    {% endif %}
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
             {% endfor %}
         </div>
     {% endif %}

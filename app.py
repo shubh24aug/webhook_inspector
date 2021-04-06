@@ -1,7 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect
 from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import ForeignKey, desc
+from sqlalchemy import ForeignKey, desc, join
 from sqlalchemy.sql import select
 import hashlib
 import json
@@ -79,7 +79,7 @@ def store_webhook_data(endpoint):
             if len(query_endpoints) == 1:
                 request_data = {}
 
-                request_data['query'] = request.args if len(request.args) > 0 else "No Query Parameters."
+                request_data['query'] = request.args.to_dict() if len(request.args) > 0 else "No Query Parameters."
                 request_data['raw_body'] = request.data.decode('utf-8') if len(request.data) > 0 else "No Raw Request Data Found."
                 request_data['form_data'] = request.form if len(request.form) > 0 else "No Form Data Found."
                 
@@ -141,8 +141,22 @@ def list_endpoints():
 
 @app.route('/endpoint-details/<endpoint>')
 def endpoint_details(endpoint):
-    # data_posted = WebhookData.query.where(WebhookData.webhook_data_id > 1).all()
-    return render_template('show_endpoint_data.html', endpoint = endpoint)
+
+    try:
+        if endpoint is not None and endpoint != "" and endpoint != '' and endpoint != ' ':
+
+            query_endpoints = Endpoints.query.where(Endpoints.endpoint==endpoint, Endpoints.status=='Active', Endpoints.expires_at >= datetime.now()).all()
+
+            if len(query_endpoints) == 1:
+                data_posted = WebhookData.query.join(Endpoints, WebhookData.reference_endpoint ==  query_endpoints[0].endpoint_id).order_by(desc(WebhookData.webhook_data_id))
+                return render_template('show_endpoint_data.html', data_posted = data_posted, reference_endpoint = endpoint)
+            else:
+                return render_template('error.html', error = "No Endpoint data found.")
+        else:
+            return render_template('error.html', error = "Endpoint cannot be blank.")
+    except Exception as e:
+        return render_template('error.html', error = e)
+    
 
 
 ## Code for background process
