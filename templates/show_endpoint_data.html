@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+
+    <div class="container" style="margin-top: 15pt;">
+        <p style="font-size: 80%;">
+            http://something.com/{{ data_posted.reference_endpoint }}
+            <br>
+            <button class="btn btn-sm btn-outline-primary" style="position: inline;">Copy</button>
+        </p>
+    </div>
+
+    {% if call_from == 'save_data' %}
+        <div class="container" style="margin-top: 10pt;">
+            <div class="card" style="margin-top: 5pt; margin-bottom: 5pt;">
+                <div class="card-header" id="heading{{data_posted.webhook_data_id}}">
+                    <h5>
+                        Data Posted On : {{data_posted.hit_at}}
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <span>
+                        <h6>
+                            Headers
+                        </h6>
+                        {% for header in data_posted.header_data %}
+                            {{ header }} <br>
+                        {% endfor %}
+                    </span>
+                    <hr>
+                    <span>
+                        <h6>
+                            Form Data
+                        </h6>
+                        {% if data_posted.form_data is mapping %}
+                            {% for key,value in data_posted.form_data.items() %}
+                                {{ key }} : {{ value }} <br>
+                            {% endfor %}
+                        {% else %}
+                            {{ data_posted.form_data }}
+                        {% endif %}
+                    </span>
+                    <hr>
+                    <span>
+                        <h6>
+                            Raw Data
+                        </h6>
+                        {% if data_posted.raw_data[0] == '{' %}
+                            {% set raw_item = data_posted.raw_data[1:-1].split(",") %}
+                                {% for item in raw_item %}
+                                    {{ item }} <br>
+                                {% endfor %}
+                        {% else %}
+                            {{ data_posted.raw_data }}
+                        {% endif %}                    
+                    </span>
+                    <hr>
+                    <span>
+                        <h6>
+                            Files
+                        </h6>
+                        {% if data_posted.files_data is not string() %}
+                            {% for file in data_posted.files_data %}
+                                {{ file }} <br>
+                            {% endfor %}
+                        {% else %}
+                            {{ data_posted.files_data }}
+                        {% endif %}
+                    </span>
+                    <hr>
+                    <span>
+                        <h6>
+                            Query Params
+                        </h6>
+                        {% if data_posted.query_params_data is mapping %}
+                            {% for key,value in data_posted.query_params_data.items() %}
+                                {{ key }} : {{ value }} <br>
+                            {% endfor %}
+                        {% else %}
+                            {{ data_posted.query_params_data }}
+                        {% endif %}
+                    </span>
+                    <hr>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="container" style="margin-top: 10pt;">
+            {% for item in data_posted %}
+                <div class="card" style="margin-top: 5pt; margin-bottom: 5pt;">
+                    <div class="card-header" id="heading{{item.webhook_data_id}}">
+                        <h5 class="mb-0">
+                            Data Posted On : {{item.hit_at}}
+                        </h5>
+                    </div>
+
+                    <div id="{{item.webhook_data_id}}" class="collapse show" aria-labelledby="heading{{item.webhook_data_id}}" data-parent="#datadumped">
+                        <div class="card-body">
+                        {{ item.header_data }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

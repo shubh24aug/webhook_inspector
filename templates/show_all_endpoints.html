@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        {% if all_endpoints|length() < 1  %}
+            <div class="card" style="margin-top: 20pt;">
+                <div style="text-align: center;">
+                    No Endpoints exists in the Database. Go ahead and create one from the button on the Top.
+                </div>
+            </div>
+        {% else %}
+            <table class="table table-dark table-striped" style="margin-top: 20pt;">
+                <thead>
+                    <tr>
+                        <th >Endpoint</th>
+                        <th>Created At</th>
+                        <th>Expires At</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                
+                <tbody class="table-hover">
+                    {% for data in all_endpoints %}
+                    <tr>
+                        <td style ="word-break:break-all;">{{ data.endpoint }}</td>
+                        <td>{{ data.created_at }}</td>
+                        <td>{{ data.expires_at }}</td>
+                        <td>{{ data.status }}</td>
+                        <td>
+                            <a class="btn btn-light">
+                                View
+                            </a>
+                        </td>
+                    </tr>    
+                    {% endfor %}
+                    
+                    
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}

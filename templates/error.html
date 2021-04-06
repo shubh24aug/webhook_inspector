@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+    <div class="container" style="margin-top: 30pt;">
+        <center>
+            <b>
+                Something went wrong while performing the action.
+            </b>
+            <br>
+            <b>
+                Details are:
+            </b>
+            <br>
+            {{ error }}
+        </center>
+    </div>
+{% endblock %}
