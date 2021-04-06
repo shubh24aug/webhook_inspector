@@ -5,13 +5,21 @@
 {% endblock %}
 
 {% block body %}
-
+        
+        <script>
+            function myFunction() {
+                var copyText = document.getElementById("myEndpoint");
+                copyText.select();
+                copyText.setSelectionRange(0, 99999)
+                document.execCommand("copy");
+            }
+        </script>
     {% if call_from == 'save_data' %}
         <div class="container" style="margin-top: 15pt;">
             <p style="font-size: 80%;">
-                http://something.com/{{ data_posted.reference_endpoint }}
+                <input style="width:100%;" type="text" value="127.0.0.1:5000/test-webhook/{{ data_posted.reference_endpoint }}" id="myEndpoint" readonly>
                 <br>
-                <button class="btn btn-sm btn-outline-primary" style="position: inline;">Copy</button>
+                <button class="btn btn-sm btn-outline-primary" onclick="myFunction()" style="position: inline;">Copy</button>
             </p>
         </div>
         <div class="container" style="margin-top: 10pt;">
@@ -90,9 +98,9 @@
     {% else %}
         <div class="container" style="margin-top: 15pt;">
             <p style="font-size: 80%;">
-                http://something.com/{{ reference_endpoint }}
+                <input style="width:100%;" type="text" value="127.0.0.1:5000/test-webhook/{{ reference_endpoint }}" id="myEndpoint" readonly>
                 <br>
-                <button class="btn btn-sm btn-outline-primary" style="position: inline;">Copy</button>
+                <button class="btn btn-sm btn-outline-primary" onclick="myFunction()" style="position: inline;">Copy</button>
             </p>
         </div>
         <div class="container" style="margin-top: 10pt;">
