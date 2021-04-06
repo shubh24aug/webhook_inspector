@@ -4,11 +4,12 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey, desc, join
 from sqlalchemy.sql import select
 import hashlib
-import json
+from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///webins.db'
 db = SQLAlchemy(app)
+scheduler = APScheduler()
 
 
 class Endpoints(db.Model):
@@ -17,8 +18,8 @@ class Endpoints(db.Model):
     endpoint = db.Column(db.String(256))
     single_use = db.Column(db.String(3))
     status = db.Column(db.String(8))
-    expires_at = db.Column(db.DateTime, default=(datetime.now() + timedelta(hours=1)))
-    created_at = db.Column(db.DateTime, default=datetime.now())
+    expires_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime)
 
     def __repr__(self):
         return '<Endpoint %r>' % self.endpoint_id
@@ -51,7 +52,7 @@ def create_endpoint():
         unique_endpoint = (hashlib.sha512(str(datetime.now()).encode())).hexdigest()
         
         #new endpoint model, data initialization, adding data, committing data
-        new_endpoint = Endpoints(endpoint = unique_endpoint, status = 'Active', single_use = 'No')
+        new_endpoint = Endpoints(endpoint = unique_endpoint, status = 'Active', single_use = 'No', created_at = datetime.now(), expires_at = (datetime.now() + timedelta(hours=1)))
         db.session.add(new_endpoint)
         db.session.commit()
 
@@ -157,19 +158,33 @@ def endpoint_details(endpoint):
     except Exception as e:
         return render_template('error.html', error = e)
     
+def background_job():
+    try:
+        # fetching all the endpoints which are expired and needs to be deleted
+        dead_endpoints = Endpoints.query.where(Endpoints.expires_at <= datetime.now()).all()
+        if len(dead_endpoints) > 0:
+            # deleting the endpoints
+            for endpoint in dead_endpoints:
+                #deleting the endpoint data
+                db.session.delete(endpoint)
+                db.session.commit()
 
+                # fetching & deleting the webhook data that needs to be deleted
+                dumped_data = WebhookData.query.join(Endpoints, WebhookData.reference_endpoint ==  endpoint.endpoint_id)
+                if len(dumped_data) > 0:
+                    db.session.delete(dumped_data)
+                    db.session.commit()
+                else:
+                    pass
+        else:
+            pass
+    except Exception as e:
+        print(e)
 
 ## Code for background process
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
-
-    ''' 
-    1. Create Endpoint and store in DB - DONE
-    2. Dump data into DB for the endpoint - DONE
-    3. Fetch all the endpoints - DONE
-    4. Fetch all the data for that endpoint
-    5. Background Job
-    '''
-
+    # adding a job to scheduler object
+    scheduler.add_job(id="Endpoint-Cleanup", func = background_job, trigger = 'interval', seconds = 59)
+    scheduler.start()
+    app.run()
