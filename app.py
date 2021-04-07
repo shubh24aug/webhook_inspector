@@ -134,7 +134,7 @@ def store_webhook_data(endpoint):
 def list_endpoints():
     try:
         #querying DB to get all the endpoints created
-        endpoint = Endpoints.query.order_by(desc(Endpoints.endpoint_id)).all()
+        endpoint = Endpoints.query.filter(Endpoints.expires_at >= datetime.now()).order_by(desc(Endpoints.endpoint_id)).all()
         return render_template('show_all_endpoints.html', all_endpoints = endpoint)
     except Exception as e:
         return render_template('error.html', error = e)
