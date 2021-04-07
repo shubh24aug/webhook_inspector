@@ -149,10 +149,10 @@ def endpoint_details(endpoint):
             query_endpoints = Endpoints.query.where(Endpoints.endpoint==endpoint, Endpoints.status=='Active', Endpoints.expires_at >= datetime.now()).all()
 
             if len(query_endpoints) == 1:
-                data_posted = WebhookData.query.join(Endpoints, WebhookData.reference_endpoint ==  query_endpoints[0].endpoint_id).order_by(desc(WebhookData.webhook_data_id))
+                data_posted = WebhookData.query.join(Endpoints, WebhookData.reference_endpoint ==  query_endpoints[0].endpoint_id).order_by(desc(WebhookData.webhook_data_id)).all()
                 return render_template('show_endpoint_data.html', data_posted = data_posted, reference_endpoint = endpoint)
             else:
-                return render_template('error.html', error = "No Endpoint data found.")
+                return render_template('error.html', error = "No Endpoint data found for .")
         else:
             return render_template('error.html', error = "Endpoint cannot be blank.")
     except Exception as e:
@@ -187,4 +187,4 @@ if __name__ == "__main__":
     # adding a job to scheduler object
     scheduler.add_job(id="Endpoint-Cleanup", func = background_job, trigger = 'interval', seconds = 59)
     scheduler.start()
-    app.run()
+    app.run(debug=True)
