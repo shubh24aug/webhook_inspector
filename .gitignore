@@ -1,3 +1,4 @@
 
 webins.db
 main_file.wsgi
+*.db
