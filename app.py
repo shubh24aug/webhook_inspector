@@ -187,4 +187,4 @@ if __name__ == "__main__":
     # adding a job to scheduler object
     scheduler.add_job(id="Endpoint-Cleanup", func = background_job, trigger = 'interval', seconds = 59)
     scheduler.start()
-    app.run(debug=True)
+    app.run()
